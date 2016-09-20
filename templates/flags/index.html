@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html ng-app="FlagsApp" ng-controller="FlagsController" >
+<head>
+    <meta charset="utf-8">
+    <title>Flags for Nepal</title>
+    
+    <script src="/media/js/jquery-2.1.3.min.js"></script>
+    <script src="/media/js/angular.min.js"></script>
+    <script src="/media/js/bootstrap.min.js"></script>
+    <script src="/media/js/flags.js"></script>
+    <link href="/media/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/media/css/flags.css" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="/media/images/favicon.png" />
+    
+    <meta property="og:image" content="http://flagsfornepal.org/media/images/SampleImage_FlagsforNepal.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1039">
+    <meta property="og:image:height" content="673">
+</head>
+
+<body>
+    <div id="header" class="header">
+        <div class="headerTitle">
+            <h1>Send a flag to Nepal</h1>
+        </div>
+        <div class="headerAddFlag">
+            <a href="" data-toggle="modal" data-target="#newFlagForm">
+                <img class="pull-left" src="/media/images/addFlagSmall.png" />
+                <p>{{ flags.count }} sent so far<br />Add yours</p>
+            </a>
+        </div>
+        <div class="fb-share-button" data-href="http://flagsfornepal.org" data-layout="button_count"></div>
+        <div class="fbHeader"></div>
+    </div>
+    <div class="flagContainer" tagged-infinite-scroll="loadMore()" tagged-infinite-scroll-disabled='fetching || fetchingDisabled' tagged-infinite-scroll-flag-count="flags.length">
+        <div class="flag flagInit">
+            <a href="" data-toggle="modal" data-target="#newFlagForm">
+                <div class="flagContent"></div>
+            </a>
+        </div>
+        <div class="flag" ng-repeat="flag in flags" ng-style="{'background':'url(/media/images/Flag' + flag.random + '.png)'}" ng-if="flag.state != 'flagged'">
+            <button ng-if="flag.state == 'new'" class="close btn-xs closeFlag" aria-label="Delete this flag" type="button" ng-click="flag.state='marked'">
+                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+            </button>
+            <div class="flagContent" ng-if="flag.thumbnail != '' && flag.state != 'flagged' && flag.state != 'marked'">
+                <a href="" ng-click="previewModal(flag)">
+                    <div class="flagImageContainer">
+                        <img ng-src="{[ flag.thumbnail ]}" />
+                    </div>
+                </a>
+                <p class="flagImageTagline">{[ flag.tagline ]}</p>
+                <p class="flagAttribute">{[ flag.author ]}</p>
+            </div>
+            <div class="flagContent" ng-if="flag.thumbnail == '' && flag.state != 'flagged' && flag.state != 'marked'">
+                <div class="flagTextContainer">
+                    <p class="flagTextTagline">{[ flag.tagline ]}</p>
+                </div>
+                <p class="flagAttribute">{[ flag.author ]}</p>
+            </div>
+            <div class="flagContent" ng-if="flag.state == 'marked'">
+                <div class='sumbitFlag'>
+                    <p>Delete this flag?</p>
+                    <div class="form-group">
+                        <label ng-if="!flag.state.errors" for="flagReason">Reason (required)</label>
+                        <input type="text" class="form-control" id="flagReason" ng-model="flag.flagReason">
+                    </div>
+                    <button type="submit" class="btn btn-default" ng-click="flag.state='new'">Cancel</button>
+                    <button type="submit" class="btn btn-default" ng-click="flagFlag(flag.id)">Delete</button>
+                </div>
+            </div>
+        </div>
+        <div class="mountainBg"></div>
+        <div class="cloudBg"></div>
+    </div>
+    
+    <div class='staticText'>
+        <div class="aboutFlagProject">
+            <h1>About the Flags for Nepal project</h1>
+            <p class="lead">The Flags for Nepal project is way to show support for the people of Nepal. Sending money and supplies surely help, but a wish from a five year old is priceless.</p>
+            <p>This project was inspired by the prayer flags in the Himalayas. A prayer flag is a colorful rectangular cloth, often found strung along mountain ridges and peaks high in the Himalayas. They are used to bless the surrounding countryside and for other purposes.</p>
+        </div>
+        <div class="instructions">
+            <hr />
+            <div class="details">
+                <h1>How to send a flag using a phone <small>Without a scanner or a computer</small></h1>
+                <div class="vBar noBar">
+                    <div class="vBarImage">
+                        <img src="/media/images/SendingPicture1.png" />
+                    </div>
+                    <p>Draw your flag</p>
+                    <p>अपने झंडे के लिए ड्रॉयिंग बनाए</p>
+                </div>
+                <div class="vBar">
+                    <div class="vBarImage">
+                        <img src="/media/images/SendingPicture2.png" />
+                    </div>
+                    <p>Tap the red flag</p>
+                    <p>लाल झंडे को त्तैप करें</p>
+                </div>
+                <div class="vBar">
+                    <div class="vBarImage">
+                        <img src="/media/images/SendingPicture3.png" />
+                    </div>
+                    <p>Take a picture with your phone</p>
+                    <p>अपनी ड्रॉयिंग की फोटो खींचे</p>
+                </div>
+                <div class="vBar">
+                    <div class="vBarImage">
+                        <img src="/media/images/SendingPicture4.png" />
+                    </div>
+                    <p>Enter message and hit submit</p>
+                    <p>अपना मेसेज लिख कर सब्मिट करें </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <p class="moreLink"><a target="_blank" href="http://blog.microsoftnewengland.com/2015/05/07/flags-for-nepal-sharing-thoughts-and-prayers-with-nepal/">Read more about this project</a></a></p>
+    
+    <div id="newFlagForm" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Add your flag</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'index' %}" method="POST" enctype="multipart/form-data" onSubmit="document.getElementById('submitFlag').disabled=true;">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="inputTagline">A short message for your flag</label>
+                            <input type="text" class="form-control" id="inputTagline" name="tagline" maxlength="50">
+                        </div>
+                        <p>&nbsp;</p>
+                        <div class="form-group">
+                            <label for="inputImage">You can also add a picture, drawing, or painting to your flag</label>
+                            <input style="color:lightgray; height:38px;" type="file" id="inputImage" name="image">
+                        </div>
+                          <p>&nbsp;</p>
+                          <label>Additional optional information:</label>
+                        <div class="form-group">
+                            <p for="inputName">Your name and location</p>
+                            <input type="text" class="form-control" id="inputName" name="name" maxlength="50">
+                        </div>
+                        <div class="form-group">
+                            <p for="inputEmail">Email (it won't be shared with anyone)</p>
+                            <input type="email" class="form-control" id="inputEmail" name="email" maxlength="50">
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="submitFlag" type="submit" class="btn btn-default" value="Send">Send my flag</button>
+                </div>
+                    </form>
+            </div>
+        </div>
+    </div>
+    <div id="contentForm" class="modal fade">
+        <div class="modal-dialog modal-lg" style="color:black">
+            <div class="modal-content" ng-if="showFlag">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 style="margin-left:20px;" class="modal-title">{[ showFlag.tagline ]}&nbsp;</h4>
+                </div>
+                <div class="modal-body">
+                  <div class="carousel slide" data-ride="carousel">
+                      <!-- Wrapper for slides -->
+                      <div class="carousel-inner" role="listbox">
+                        <div class="item active">
+                          <img ng-src="{[ showFlag.image ]}">
+                        </div>
+                      </div>
+                
+                      <!-- Controls -->
+                      <a ng-show="showPrevious" ng-click="prepShow(showPrevious)" class="left carousel-control" role="button" data-slide="prev">
+                        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                      </a>
+                      <a ng-show="showNext" ng-click="prepShow(showNext)" class="right carousel-control" role="button" data-slide="next">
+                        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                      </a>
+                      <div class="form-group" style="margin: 10px 34px 0 34px;">
+                            <p style="color: #555555" for="inputName">Link to this flag:</p>
+                            <input type="text" class="form-control" id="inputName" name="name" maxlength="50" value="http://flagsfornepal.org/flags/{[showFlag.id]}" readonly="readonly">
+                      </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <p style="font-size:17px; text-align:left; margin-left:20px;">{[ showFlag.author ]}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        
+        ga('create', 'UA-62550640-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.3";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+</body>
+        
+</html>
