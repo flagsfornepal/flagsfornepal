@@ -104,7 +104,7 @@ angular.module('FlagsApp', ['tagged.directives.infiniteScroll'])
             if ($scope.data.next == false)
                 return;
         }
-        $http.get('/page' + param + '.json')
+        $http.get('/pages/page' + param + '.json')
         .success(function(data) {
             $scope.data = data;
             addFlags();
