@@ -8,13 +8,13 @@ angular.module('FlagsApp', ['tagged.directives.infiniteScroll'])
     $interpolateProvider.endSymbol(']}');
 })
 .controller('FlagsController', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
-    
+
     $scope.flags = [];
     $scope.fetchingDisabled = true;
     $scope.next = false;
     $scope.showNext = false;
     $scope.showPrev = false;
-    
+
     function addFlags() {
         for (var i = 0; i < $scope.data.flags.length; i++) {
             if (isDupe($scope.data.flags[i]))
@@ -27,28 +27,28 @@ angular.module('FlagsApp', ['tagged.directives.infiniteScroll'])
                 flag['author'] = flag['name'];
             else if (flag['name'] == '' && flag['location'] != '')
                 flag['author'] = flag['location'];
-            
+
             $scope.flags.push(flag);
         }
     };
-    
+
     $scope.prepShow = function(flag) {
         var index = findFlagById(flag.id);
-        
+
         var previous = -1;
         for (var i = index - 1; i >= 0; i--)
             if ($scope.flags[i].image !== '') {
                 previous = i;
                 break;
             }
-        
+
         var next = $scope.flags.length + 1;
         for (var i = index + 1; i < $scope.flags.length; i++)
             if ($scope.flags[i].image !== '') {
                 next = i;
                 break;
             }
-        
+
         if (previous < 0)
             $scope.showPrevious = false;
         else {
@@ -59,20 +59,20 @@ angular.module('FlagsApp', ['tagged.directives.infiniteScroll'])
         else {
             $scope.showNext = $scope.flags[next];
         }
-        
+
         $scope.showFlag = flag;
         console.log(previous, index, next);
     };
-    
+
     function isDupe(index) {
         for (var i = 0; i < $scope.flags.length; i++) {
             if ($scope.flags[i]['id'] == index)
                 return true;
         }
-        
+
         return false;
     };
-    
+
     function findFlagById(index) {
         for (var i = 0; i < $scope.flags.length; i++) {
           if ($scope.flags[i]['id'] == index)
@@ -80,12 +80,12 @@ angular.module('FlagsApp', ['tagged.directives.infiniteScroll'])
         }
         return null;
     };
-    
+
     $scope.previewModal = function(flag) {
         $scope.prepShow(flag);
         $("#contentForm").modal('show');
     };
-    
+
     $scope.flagFlag = function(id) {
         var flag = $scope.flags[findFlagById(id)];
         if (flag.flagReason != '') {
@@ -95,7 +95,7 @@ angular.module('FlagsApp', ['tagged.directives.infiniteScroll'])
             });
         }
     };
-    
+
     $scope.loadMore = function() {
         $scope.fetching = true;
         var param = '1';
@@ -104,7 +104,7 @@ angular.module('FlagsApp', ['tagged.directives.infiniteScroll'])
             if ($scope.data.next == false)
                 return;
         }
-        $http.get('/get?page=' + param)
+        $http.get('/page' + param + '.json')
         .success(function(data) {
             $scope.data = data;
             addFlags();
@@ -115,7 +115,7 @@ angular.module('FlagsApp', ['tagged.directives.infiniteScroll'])
             $timeout(function(){$scope.fetching = false;}, 1000);
         });
     };
-    
+
     $scope.loadMore();
 }]);
 
